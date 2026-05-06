@@ -1,4 +1,4 @@
-# 🌍 Buddy Finder
+# 🌍 InterLink
 
 Buddy Finder is a full-stack travel companion platform where users can **create trips**, **find travel buddies**, and **explore trips based on preferences** like budget, season, and travel type.
 
