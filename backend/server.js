@@ -25,7 +25,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://inter-link-nvom.vercel.app",
+  "https://inter-link-wog9.vercel.app",
 ];
 
 /* ======================
