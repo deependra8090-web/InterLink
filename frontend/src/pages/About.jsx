@@ -10,7 +10,7 @@ const About = () => {
           Find the right travel buddy.
         </h1>
         <p className="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">
-          Buddy Finder helps travelers connect, plan trips together,
+          InterLink helps travelers connect, plan trips together,
           and explore destinations with people who share the same vibe.
         </p>
       </section>
@@ -62,7 +62,7 @@ const About = () => {
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-bold text-center">
-            How Buddy Finder works
+            How InterLink works
           </h2>
 
           <div className="mt-12 grid md:grid-cols-3 gap-12 text-center">
@@ -129,8 +129,8 @@ const About = () => {
 
       {/* FOOTER NOTE */}
       <section className="py-12 text-center text-sm text-slate-500">
-        <p>Buddy Finder · A full-stack travel companion platform</p>
-        <p className="mt-1">Crafted with ❤️ by Arpit Mishra</p>
+        <p>InterLink · A full-stack travel companion platform</p>
+        <p className="mt-1">Crafted with ❤️ by  Deependra Kumar </p>
       </section>
 
     </div>
