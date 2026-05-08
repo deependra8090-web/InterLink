@@ -6,7 +6,7 @@ const sendEmail = async ({ to, subject, html }) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "Buddy Finder",
+          name: "InterLink",
           email: process.env.EMAIL_FROM,
         },
         to: [{ email: to }],

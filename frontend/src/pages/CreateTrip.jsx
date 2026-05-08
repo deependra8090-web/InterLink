@@ -10,17 +10,17 @@ const CreateTrip = () => {
   const { createTrip, loading } = useTrips();
   const navigate = useNavigate();
 
-  // ✅ SAFE location state
   const { state: locationState } = useLocation();
 
   /* ================= STATE ================= */
   const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(locationState?.image || "");
 
-  // ✅ RENAMED (no router conflict)
+  // ❌ Removed default preview from locationState (important fix)
+  const [preview, setPreview] = useState("");
+
   const [tripLocation, setTripLocation] = useState(
     locationState?.location || {
-      lat: 28.6139, // Delhi default
+      lat: 28.6139,
       lng: 77.209,
       address: "",
     }
@@ -50,9 +50,7 @@ const CreateTrip = () => {
       setTripLocation(locationState.location);
     }
 
-    if (locationState.image) {
-      setPreview(locationState.image);
-    }
+    // ❌ DO NOT set preview from locationState
   }, [locationState]);
 
   /* ================= HANDLERS ================= */
@@ -72,7 +70,7 @@ const CreateTrip = () => {
     }
 
     setImage(file);
-    setPreview(URL.createObjectURL(file));
+    setPreview(URL.createObjectURL(file)); // only for preview
   };
 
   /* ================= SUBMIT ================= */
@@ -87,29 +85,31 @@ const CreateTrip = () => {
       return toast.error("End date must be after start date");
     }
 
-try {
-  if (!image) {
-    return toast.error("Please upload an image");
-  }
+    try {
+      // ✅ FORCE IMAGE UPLOAD (CRITICAL FIX)
+      if (!image) {
+        return toast.error("Please upload an image");
+      }
 
-  const imageUrl = await uploadImage(image);
+      const imageUrl = await uploadImage(image);
 
-  console.log("Saving trip with Image URL:", imageUrl);
+      console.log("FINAL IMAGE URL:", imageUrl); // 🔍 debug
 
-  await createTrip({
-    ...formData,
-    budget: Number(formData.budget),
-    maxPeople: Number(formData.maxPeople),
-    image: imageUrl,
-    location: tripLocation,
-  });
+      await createTrip({
+        ...formData,
+        budget: Number(formData.budget),
+        maxPeople: Number(formData.maxPeople),
+        image: imageUrl,
+        location: tripLocation,
+      });
 
-  toast.success("Trip created successfully 🎉");
-  navigate("/explore");
-} catch (error) {
-  console.error(error);
-  toast.error("Failed to create trip");
-}
+      toast.success("Trip created successfully 🎉");
+      navigate("/explore");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create trip");
+    }
+  };
 
   if (loading) return <Loader fullScreen />;
 
