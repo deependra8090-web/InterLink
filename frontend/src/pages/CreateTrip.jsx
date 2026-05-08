@@ -9,13 +9,9 @@ import MapBoxView from "../components/maps/MapBoxView";
 const CreateTrip = () => {
   const { createTrip, loading } = useTrips();
   const navigate = useNavigate();
-
   const { state: locationState } = useLocation();
 
-  /* ================= STATE ================= */
   const [image, setImage] = useState(null);
-
-  // ❌ Removed default preview from locationState (important fix)
   const [preview, setPreview] = useState("");
 
   const [tripLocation, setTripLocation] = useState(
@@ -49,8 +45,6 @@ const CreateTrip = () => {
     if (locationState.location) {
       setTripLocation(locationState.location);
     }
-
-    // ❌ DO NOT set preview from locationState
   }, [locationState]);
 
   /* ================= HANDLERS ================= */
@@ -70,7 +64,40 @@ const CreateTrip = () => {
     }
 
     setImage(file);
-    setPreview(URL.createObjectURL(file)); // only for preview
+    setPreview(URL.createObjectURL(file));
+  };
+
+  /* ================= 🔍 SEARCH LOCATION ================= */
+  const handleSearchLocation = async () => {
+    if (!formData.destination) {
+      return toast.error("Enter a location first");
+    }
+
+    try {
+      // Using OpenStreetMap (free geocoding)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${formData.destination}`
+      );
+
+      const data = await res.json();
+
+      if (!data.length) {
+        return toast.error("Location not found");
+      }
+
+      const place = data[0];
+
+      const newLocation = {
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lon),
+        address: place.display_name,
+      };
+
+      setTripLocation(newLocation);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch location");
+    }
   };
 
   /* ================= SUBMIT ================= */
@@ -86,14 +113,11 @@ const CreateTrip = () => {
     }
 
     try {
-      // ✅ FORCE IMAGE UPLOAD (CRITICAL FIX)
       if (!image) {
         return toast.error("Please upload an image");
       }
 
       const imageUrl = await uploadImage(image);
-
-      console.log("FINAL IMAGE URL:", imageUrl); // 🔍 debug
 
       await createTrip({
         ...formData,
@@ -113,7 +137,6 @@ const CreateTrip = () => {
 
   if (loading) return <Loader fullScreen />;
 
-  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-6">
@@ -124,8 +147,8 @@ const CreateTrip = () => {
         {/* MAP */}
         <div className="mb-4">
           <MapBoxView
-            lat={tripLocation?.lat ?? 28.6139}
-            lng={tripLocation?.lng ?? 77.209}
+            lat={tripLocation?.lat}
+            lng={tripLocation?.lng}
             mode="edit"
             onSelect={setTripLocation}
           />
@@ -139,15 +162,28 @@ const CreateTrip = () => {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-            placeholder="Destination"
-            className="input w-full"
-            required
-          />
 
+          {/* 🔍 DESTINATION + SEARCH */}
+          <div className="flex gap-2">
+            <input
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              placeholder="Enter destination"
+              className="input w-full"
+              required
+            />
+
+            <button
+              type="button"
+              onClick={handleSearchLocation}
+              className="bg-blue-500 text-white px-4 rounded"
+            >
+              Search
+            </button>
+          </div>
+
+          {/* IMAGE */}
           <input type="file" accept="image/*" onChange={handleImageChange} />
 
           {preview && (
@@ -158,45 +194,19 @@ const CreateTrip = () => {
             />
           )}
 
+          {/* DATES */}
           <div className="flex gap-3">
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="input w-full"
-              required
-            />
-            <input
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className="input w-full"
-              required
-            />
+            <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="input w-full" required />
+            <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="input w-full" required />
           </div>
 
+          {/* BUDGET */}
           <div className="flex gap-3">
-            <input
-              type="number"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              placeholder="Budget (₹)"
-              className="input w-full"
-            />
-            <input
-              type="number"
-              name="maxPeople"
-              value={formData.maxPeople}
-              onChange={handleChange}
-              placeholder="Max People"
-              className="input w-full"
-              required
-            />
+            <input type="number" name="budget" value={formData.budget} onChange={handleChange} placeholder="Budget (₹)" className="input w-full" />
+            <input type="number" name="maxPeople" value={formData.maxPeople} onChange={handleChange} placeholder="Max People" className="input w-full" required />
           </div>
 
+          {/* DESCRIPTION */}
           <textarea
             name="description"
             value={formData.description}
