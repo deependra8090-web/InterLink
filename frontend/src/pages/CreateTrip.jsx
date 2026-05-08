@@ -87,31 +87,29 @@ const CreateTrip = () => {
       return toast.error("End date must be after start date");
     }
 
-    try {
-      let imageUrl = "";
+try {
+  if (!image) {
+    return toast.error("Please upload an image");
+  }
 
-      if (image) {
-        imageUrl = await uploadImage(image);
-      } else if (preview?.startsWith("http")) {
-        imageUrl = preview;
-      }
-// Inside handleSubmit, right before await createTrip(...)
-console.log("Saving trip with Image URL:", imageUrl);
-      await createTrip({
-        ...formData,
-        budget: Number(formData.budget),
-        maxPeople: Number(formData.maxPeople),
-        image: imageUrl,
-        location: tripLocation,
-      });
+  const imageUrl = await uploadImage(image);
 
-      toast.success("Trip created successfully 🎉");
-      navigate("/explore");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create trip");
-    }
-  };
+  console.log("Saving trip with Image URL:", imageUrl);
+
+  await createTrip({
+    ...formData,
+    budget: Number(formData.budget),
+    maxPeople: Number(formData.maxPeople),
+    image: imageUrl,
+    location: tripLocation,
+  });
+
+  toast.success("Trip created successfully 🎉");
+  navigate("/explore");
+} catch (error) {
+  console.error(error);
+  toast.error("Failed to create trip");
+}
 
   if (loading) return <Loader fullScreen />;
 

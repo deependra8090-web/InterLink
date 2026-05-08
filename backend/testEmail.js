@@ -5,7 +5,7 @@ dotenv.config();
 
 sendEmail({
   to: "your_email@gmail.com",
-  subject: "Buddy Finder Test Email",
+  subject: "InterLink Test Email",
   html: "<h2>Email is working 🎉</h2>",
 })
   .then(() => console.log("Email sent successfully"))
