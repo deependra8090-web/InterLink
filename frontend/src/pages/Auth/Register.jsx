@@ -60,7 +60,7 @@ const Register = () => {
           Create Account
         </h2>
         <p className="text-slate-500 text-center mb-6">
-          Start your journey with Buddy Finder
+          Start your journey with InterLink
         </p>
 
         {/* FORM */}
