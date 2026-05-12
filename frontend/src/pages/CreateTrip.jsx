@@ -31,6 +31,9 @@ const CreateTrip = () => {
     description: "",
   });
 
+  // 🔽 NEW: suggestions state
+  const [suggestions, setSuggestions] = useState([]);
+
   /* ================= AUTO FILL ================= */
   useEffect(() => {
     if (!locationState) return;
@@ -48,11 +51,49 @@ const CreateTrip = () => {
   }, [locationState]);
 
   /* ================= HANDLERS ================= */
-  const handleChange = (e) => {
+
+  // 🔽 UPDATED handleChange with autocomplete
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+
+    if (name === "destination") {
+      if (!value) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${value}&limit=5`
+        );
+        const data = await res.json();
+        setSuggestions(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  // 🔽 NEW: select suggestion
+  const handleSelectSuggestion = (place) => {
+    const newLocation = {
+      lat: parseFloat(place.lat),
+      lng: parseFloat(place.lon),
+      address: place.display_name,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      destination: place.display_name,
+    }));
+
+    setTripLocation(newLocation);
+    setSuggestions([]);
   };
 
   const handleImageChange = (e) => {
@@ -67,14 +108,13 @@ const CreateTrip = () => {
     setPreview(URL.createObjectURL(file));
   };
 
-  /* ================= 🔍 SEARCH LOCATION ================= */
+  /* ================= 🔍 MANUAL SEARCH BUTTON ================= */
   const handleSearchLocation = async () => {
     if (!formData.destination) {
       return toast.error("Enter a location first");
     }
 
     try {
-      // Using OpenStreetMap (free geocoding)
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${formData.destination}`
       );
@@ -163,8 +203,8 @@ const CreateTrip = () => {
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* 🔍 DESTINATION + SEARCH */}
-          <div className="flex gap-2">
+          {/* 🔍 DESTINATION + AUTOCOMPLETE */}
+          <div className="relative flex gap-2">
             <input
               name="destination"
               value={formData.destination}
@@ -181,6 +221,21 @@ const CreateTrip = () => {
             >
               Search
             </button>
+
+            {/* 🔽 Suggestions */}
+            {suggestions.length > 0 && (
+              <ul className="absolute top-12 left-0 w-full bg-white border rounded shadow max-h-48 overflow-y-auto z-50">
+                {suggestions.map((place) => (
+                  <li
+                    key={place.place_id}
+                    onClick={() => handleSelectSuggestion(place)}
+                    className="p-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {place.display_name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* IMAGE */}
