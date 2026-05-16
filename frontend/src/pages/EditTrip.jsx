@@ -9,7 +9,9 @@ import api from "../services/api";
 
 const EditTrip = () => {
   const { id } = useParams();
+
   const navigate = useNavigate();
+
   const { updateTrip } = useTrips();
 
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,12 @@ const EditTrip = () => {
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [location, setLocation] = useState(null);
+
+  const [location, setLocation] = useState({
+    lat: 28.6139,
+    lng: 77.2090,
+    address: "",
+  });
 
   const [formData, setFormData] = useState({
     destination: "",
@@ -28,11 +35,15 @@ const EditTrip = () => {
     description: "",
   });
 
-  /* ================= FETCH ================= */
+  // AUTOCOMPLETE SUGGESTIONS
+  const [suggestions, setSuggestions] = useState([]);
+
+  /* ================= FETCH TRIP ================= */
   useEffect(() => {
     const fetchTrip = async () => {
       try {
         const res = await api.get(`/trips/edit/${id}`);
+
         const trip = res.data;
 
         setFormData({
@@ -44,18 +55,22 @@ const EditTrip = () => {
           description: trip.description || "",
         });
 
-        // ✅ FIX: normalize location
+        // LOCATION
         setLocation({
-          lat: trip.location?.lat,
-          lng: trip.location?.lng,
+          lat: trip.location?.lat || 28.6139,
+          lng: trip.location?.lng || 77.2090,
           address: trip.location?.address || "",
         });
 
         setPreview(trip.image);
+
       } catch (err) {
         console.error(err);
+
         toast.error("Failed to load trip");
+
         navigate("/explore");
+
       } finally {
         setLoading(false);
       }
@@ -64,19 +79,57 @@ const EditTrip = () => {
     fetchTrip();
   }, [id, navigate]);
 
-  /* ================= HANDLERS ================= */
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  /* ================= HANDLE CHANGE ================= */
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
+    // AUTOCOMPLETE SEARCH
+    if (name === "destination") {
+
+      if (!value.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${value}&limit=5`
+        );
+
+        const data = await res.json();
+
+        setSuggestions(data);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
   };
 
-  /* ================= 🔍 SEARCH LOCATION ================= */
+  /* ================= SELECT SUGGESTION ================= */
+  const handleSelectSuggestion = (place) => {
+    const newLocation = {
+      lat: parseFloat(place.lat),
+      lng: parseFloat(place.lon),
+      address: place.display_name,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      destination: place.display_name,
+    }));
+
+    setLocation(newLocation);
+
+    setSuggestions([]);
+  };
+
+  /* ================= MANUAL SEARCH ================= */
   const handleSearchLocation = async () => {
     if (!formData.destination) {
       return toast.error("Enter a location first");
@@ -103,30 +156,52 @@ const EditTrip = () => {
 
       setLocation(newLocation);
 
-      // ✅ update input with full address
+      // UPDATE INPUT VALUE
       setFormData((prev) => ({
         ...prev,
         destination: place.display_name,
       }));
+
+      toast.success("Location found");
+
     } catch (err) {
       console.error(err);
+
       toast.error("Failed to fetch location");
     }
   };
 
-  /* ================= SAVE ================= */
+  /* ================= IMAGE ================= */
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      return toast.error("Image must be under 2MB");
+    }
+
+    setImage(file);
+
+    setPreview(URL.createObjectURL(file));
+  };
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!location?.lat || !location?.lng) {
-      toast.error("Please select location");
-      return;
+      return toast.error("Please select a location");
+    }
+
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      return toast.error("End date must be after start date");
     }
 
     try {
       setSaving(true);
 
-      // ✅ FIX: keep old image unless new uploaded
+      // KEEP OLD IMAGE IF NEW NOT SELECTED
       let imageUrl = preview;
 
       if (image) {
@@ -142,10 +217,14 @@ const EditTrip = () => {
       });
 
       toast.success("Trip updated successfully ✨");
+
       navigate(`/trip/${id}`);
+
     } catch (error) {
       console.error(error);
+
       toast.error("Failed to update trip");
+
     } finally {
       setSaving(false);
     }
@@ -155,36 +234,41 @@ const EditTrip = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-6">
+
         <h2 className="text-2xl font-bold mb-6 text-center">
           Edit Trip ✏️
         </h2>
 
         {/* MAP */}
-        {location?.lat && location?.lng && (
+        <div className="mb-4">
           <MapBoxView
-            lat={location.lat}
-            lng={location.lng}
+            lat={location?.lat}
+            lng={location?.lng}
             onSelect={setLocation}
             mode="edit"
           />
-        )}
 
-        {location?.address && (
-          <p className="text-sm text-gray-500 mt-1">
-            📍 {location.address}
-          </p>
-        )}
+          {location?.address && (
+            <p className="text-sm text-gray-500 mt-2">
+              📍 {location.address}
+            </p>
+          )}
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* 🔍 DESTINATION + SEARCH */}
-          <div className="flex gap-2">
+          {/* DESTINATION SEARCH */}
+          <div className="relative flex gap-2">
+
             <input
+              type="text"
               name="destination"
               value={formData.destination}
               onChange={handleChange}
-              placeholder="Enter destination"
+              placeholder="Search destination..."
               className="input w-full"
               required
             />
@@ -192,14 +276,35 @@ const EditTrip = () => {
             <button
               type="button"
               onClick={handleSearchLocation}
-              className="bg-blue-500 text-white px-4 rounded"
+              className="bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700"
             >
               Search
             </button>
+
+            {/* AUTOCOMPLETE DROPDOWN */}
+            {suggestions.length > 0 && (
+              <ul className="absolute top-12 left-0 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+
+                {suggestions.map((place) => (
+                  <li
+                    key={place.place_id}
+                    onClick={() => handleSelectSuggestion(place)}
+                    className="p-3 cursor-pointer hover:bg-gray-100 text-sm"
+                  >
+                    {place.display_name}
+                  </li>
+                ))}
+
+              </ul>
+            )}
           </div>
 
           {/* IMAGE */}
-          <input type="file" onChange={handleImageChange} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
 
           {preview && (
             <img
@@ -211,6 +316,7 @@ const EditTrip = () => {
 
           {/* DATES */}
           <div className="flex gap-3">
+
             <input
               type="date"
               name="startDate"
@@ -219,6 +325,7 @@ const EditTrip = () => {
               className="input w-full"
               required
             />
+
             <input
               type="date"
               name="endDate"
@@ -231,14 +338,18 @@ const EditTrip = () => {
 
           {/* BUDGET */}
           <div className="flex gap-3">
+
             <input
+              type="number"
               name="budget"
               value={formData.budget}
               onChange={handleChange}
-              placeholder="Budget"
+              placeholder="Budget (₹)"
               className="input w-full"
             />
+
             <input
+              type="number"
               name="maxPeople"
               value={formData.maxPeople}
               onChange={handleChange}
@@ -258,12 +369,14 @@ const EditTrip = () => {
             required
           />
 
+          {/* SUBMIT */}
           <button
             disabled={saving}
-            className="w-full bg-blue-600 text-white py-2 rounded-full"
+            className="w-full bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700 transition"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
+
         </form>
       </div>
     </div>
