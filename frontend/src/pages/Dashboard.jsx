@@ -34,7 +34,7 @@ const Dashboard = () => {
         <div className="w-full max-w-3xl">
 
           {/* GLASS CARD */}
-          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-8 md:p-12 text-center shadow-2xl">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-8 md:p-12 text-center shadow-2xl + mt-20">
 
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">
               Adventure Awaits
