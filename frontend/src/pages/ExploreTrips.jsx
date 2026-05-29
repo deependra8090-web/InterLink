@@ -31,14 +31,17 @@ const ExploreTrips = () => {
   const [budgetRange, setBudgetRange] = useState(preferredBudget);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [status, setStatus] = useState("ALL");
-
-  /* MOBILE FILTER TOGGLE */
   const [showFilters, setShowFilters] = useState(false);
+
+  /* ================= SYNC BUDGET ================= */
+  useEffect(() => {
+    setBudgetRange(preferredBudget);
+  }, [preferredBudget]);
 
   /* ================= FETCH ================= */
   useEffect(() => {
     if (!trips.length) fetchAllTrips();
-  }, [fetchAllTrips, trips.length]);
+  }, [trips, fetchAllTrips]);
 
   /* ================= FILTER + RANK ================= */
   const filteredTrips = useMemo(() => {
@@ -62,15 +65,11 @@ const ExploreTrips = () => {
       })
       .sort((a, b) => {
         const aScore =
-          preferredTravelType &&
-          a.destination?.toLowerCase().includes(preferredTravelType)
-            ? 1
-            : 0;
+          preferredTravelType && a.type === preferredTravelType ? 1 : 0;
+
         const bScore =
-          preferredTravelType &&
-          b.destination?.toLowerCase().includes(preferredTravelType)
-            ? 1
-            : 0;
+          preferredTravelType && b.type === preferredTravelType ? 1 : 0;
+
         return bScore - aScore;
       });
   }, [
@@ -84,7 +83,7 @@ const ExploreTrips = () => {
 
   /* ================= SUGGESTED ================= */
   const suggested = suggestedPlaces.filter((p) => {
-    if (preferredSeason && !p.season.includes(preferredSeason)) return false;
+    if (preferredSeason && !p.season?.includes(preferredSeason)) return false;
     if (preferredTravelType && p.type !== preferredTravelType) return false;
     return true;
   });
@@ -92,7 +91,7 @@ const ExploreTrips = () => {
   if (loading) return <Loader fullScreen />;
 
   return (
-    <div className="bg-slate-50 px-4 py-8">
+    <div className="bg-slate-50 px-4 py-8 min-h-screen">
       <h1 className="text-3xl font-bold text-center text-slate-800 mb-6">
         Explore Trips 🌍
       </h1>
