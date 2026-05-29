@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
@@ -29,6 +30,8 @@ import ExploreTrips from "./pages/ExploreTrips";
 import About from "./pages/About";
 
 // ================= PROTECTED PAGES =================
+import AIRecommendations
+from "./pages/AIRecommendations";
 import CreateTrip from "./pages/CreateTrip";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
@@ -82,6 +85,10 @@ function App() {
 
 
           {/* ========== PROTECTED ROUTES ========== */}
+          <Route
+  path="/ai-recommendations"
+  element={<AIRecommendations />}
+/>
           <Route element={<ProtectedRoute />}>
             <Route element={<ProtectedLayout />}>
               <Route path="/create-trip" element={<CreateTrip />} />

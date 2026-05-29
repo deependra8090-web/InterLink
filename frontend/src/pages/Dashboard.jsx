@@ -1,9 +1,11 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import MatchRecommendations from "../components/MatchRecommendations";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
@@ -11,7 +13,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-64px)] overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-hidden">
 
       {/* BACKGROUND IMAGE */}
       <div
@@ -21,57 +23,68 @@ const Dashboard = () => {
             "url('https://wallpaperaccess.com/full/89251.jpg')",
         }}
       >
-        {/* TRANSLUCENT OVERLAY */}
-        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px]" />
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" />
       </div>
 
-      {/* FOOTER-PLACED CONTAINER */}
-      <div className="absolute bottom-12 md:bottom-20 left-1/2 -translate-x-1/2 z-10 w-full px-6">
+      {/* MAIN CONTENT */}
+      <div className="relative z-10 flex flex-col items-center px-6 py-12">
 
-        {/* GLASS CARD */}
-        <div className="mx-auto bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-8 md:p-12 text-center max-w-2xl w-full shadow-2xl">
-          
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">
-            Adventure Awaits
-          </h1>
+        {/* HERO SECTION */}
+        <div className="w-full max-w-3xl">
 
-          <p className="text-lg md:text-xl text-slate-600 mb-8">
-            Find like-minded travel buddies and explore the world together.
-          </p>
+          {/* GLASS CARD */}
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-8 md:p-12 text-center shadow-2xl">
 
-          {/* CTA BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => navigate("/explore")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-4 rounded-full text-lg transition"
-            >
-              Explore Trips
-            </button>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">
+              Adventure Awaits
+            </h1>
 
-            {!user && (
+            <p className="text-lg md:text-xl text-slate-600 mb-8">
+              Find like-minded travel buddies and explore the world together.
+            </p>
+
+            {/* CTA BUTTONS */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {/* AI RECOMMENDATION BUTTON */}
+
+  {user && (
+    <button
+      onClick={() => navigate("/ai-recommendations")}
+      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-10 py-4 rounded-full text-lg transition"
+    >
+      AI Recommendations
+    </button>
+  )}
+
+              
+
+              {!user && (
+               <button
+      onClick={() => navigate("/login")}
+      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-10 py-4 rounded-full text-lg transition"
+    >
+      AI Recommendations
+    </button>
+              )}
               <button
-                onClick={() => navigate("/login")}
-                className="bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 font-semibold px-10 py-4 rounded-full text-lg transition"
+                onClick={() => navigate("/explore")}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-4 rounded-full text-lg transition"
               >
-                Sign In
+                Explore Trips
               </button>
-            )}
 
-            {user && (
-              <button
-                onClick={() => navigate("/profile")}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold px-10 py-4 rounded-full text-lg transition"
-              >
-                My Profile
-              </button>
-            )}
+
+            </div>
           </div>
+
+          {/* FOOTNOTE */}
+          <p className="mt-6 text-center text-white/80 text-sm">
+            Join 2,000+ travelers worldwide
+          </p>
         </div>
 
-        {/* FOOTNOTE */}
-        <p className="mt-6 text-center text-white/70 text-sm">
-          Join 2,000+ travelers worldwide
-        </p>
+      
       </div>
     </div>
   );

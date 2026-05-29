@@ -36,16 +36,59 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    /* =====================
+       AI MATCHING FIELDS
+    ===================== */
+
+    interests: {
+      type: [String],
+      default: [],
+    },
+
+    budget: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+
+    destinationPreferences: {
+      type: [String],
+      default: [],
+    },
+
+    travelStyle: {
+      type: String,
+      enum: ["solo", "group", "luxury", "adventure"],
+      default: "solo",
+    },
+
+    language: {
+      type: String,
+      default: "",
+    },
+
+    age: {
+      type: Number,
+    },
+
+    foodPreference: {
+      type: String,
+      enum: ["veg", "non-veg", "vegan"],
+      default: "veg",
+    },
+
+    preferredTripDuration: {
+      type: Number,
+      default: 1,
+    },
+
     preferences: {
-      budget: {
-        type: Number,
-        default: 0,
-      },
       travelType: {
         type: String,
         enum: ["mountain", "beach", "city", "adventure", ""],
         default: "",
       },
+
       season: {
         type: String,
         enum: ["summer", "winter", "monsoon", ""],
@@ -57,8 +100,8 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
-    verificationTokenExpires:{
-      type:Date,
+    verificationTokenExpires: {
+      type: Date,
     },
   },
   { timestamps: true }
@@ -67,18 +110,25 @@ const userSchema = new mongoose.Schema(
 /* =====================
    HASH PASSWORD
 ===================== */
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return ;
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
 
   this.password = await bcrypt.hash(this.password, 10);
-  
+
+  next();
 });
 
 /* =====================
    MATCH PASSWORD
 ===================== */
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

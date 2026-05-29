@@ -7,6 +7,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 
 import connectDB from "./config/db.js";
+import matchRoutes from "./routes/matchRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
@@ -81,10 +82,12 @@ if (process.env.NODE_ENV === "production") {
 /* ======================
    ROUTES
 ====================== */
+app.use("/api/matches", matchRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes);
 
 /* ======================
    TEST EMAIL ROUTE
