@@ -55,7 +55,7 @@ const AIRecommendations = () => {
       const response =
         await fetch(
 
-          `http://localhost:5001/api/matches/${user._id}`,
+          `https://interlink-2.onrender.com/api/matches/${user._id}`,
 
           {
             method: "POST",
