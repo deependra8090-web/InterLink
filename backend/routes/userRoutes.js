@@ -4,7 +4,7 @@ import express from "express";
 
 import protect from "../middleware/authMiddleware.js";
 
-import { updateProfile }
+import { updateProfile, getUserById }
 from "../controllers/userController.js";
 
 import User from "../models/User.js";
@@ -47,6 +47,11 @@ router.post(
       });
     }
   }
+);
+//// NEW GET USER ROUTE
+router.get(
+  "/:id",
+  getUserById
 );
 
 export default router;

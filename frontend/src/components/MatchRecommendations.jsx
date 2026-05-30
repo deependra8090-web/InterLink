@@ -3,11 +3,13 @@ import React, {
   useState,
   useContext
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { AuthContext }
 from "../context/AuthContext";
 
 const MatchRecommendations = () => {
+   const navigate = useNavigate();
 
   const { user } =
     useContext(AuthContext);
@@ -88,16 +90,19 @@ const MatchRecommendations = () => {
         </p>
 
       ) : (
+
 matches.map((match, index) => (
 
   <div
     key={match.user?._id || index}
+     onClick={() => navigate(`/profile/${match.user?._id}`)}
     className="border border-slate-200 rounded-2xl p-5 bg-white shadow"
   >
 
-    <h3 className="text-xl font-bold">
+    
+    <button className="text-xl font-bold hover:text-blue-600 ">
       {match.user?.name}
-    </h3>
+    </button>
 
     <p className="mt-2 text-purple-600 font-semibold">
       Compatibility Score: {match.score}%

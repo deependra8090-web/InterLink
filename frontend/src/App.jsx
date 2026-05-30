@@ -1,4 +1,4 @@
-
+import PublicProfile from "./pages/PublicProfile.jsx";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
@@ -97,6 +97,7 @@ function App() {
               <Route path="/chat/:tripId" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/edit-profile" element={<EditProfile />} />
+              <Route path="/profile/:userId" element={<PublicProfile />} />
             </Route>
           </Route>
 
