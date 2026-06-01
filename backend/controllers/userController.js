@@ -1,3 +1,4 @@
+import Trip from "../models/Trip.js";
 import User from "../models/User.js";
 
 /* =========================
@@ -49,23 +50,40 @@ export const updateProfile = async (req, res) => {
    GET USER BY ID
 ========================= */
 export const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-      .select("-password");
+try {
+const user = await User.findById(req.params.id)
+.select("-password");
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
 
-    res.status(200).json(user);
+if (!user) {
+  return res.status(404).json({
+    message: "User not found",
+  });
+}
 
-  } catch (error) {
-    console.error("Get user error:", error);
+const createdTrips = await Trip.find({
+  createdBy: user._id,
+}).populate("createdBy", "name");
 
-    res.status(500).json({
-      message: "Failed to fetch user",
-    });
-  }
+const joinedTrips = await Trip.find({
+  joinedUsers: user._id,
+}).populate("createdBy", "name");
+
+res.status(200).json({
+  user,
+  createdTrips,
+  joinedTrips,
+});
+
+
+} catch (error) {
+console.error("Get user error:", error);
+
+
+res.status(500).json({
+  message: "Failed to fetch user",
+});
+
+
+}
 };
