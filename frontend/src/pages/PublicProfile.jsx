@@ -10,7 +10,7 @@ const PublicProfile = () => {
     const fetchUser = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5001/api/users/${userId}`
+          `https://interlink-2.onrender.com/api/users/${userId}`
         );
 
         const data = await res.json();
