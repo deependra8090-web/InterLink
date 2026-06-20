@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import MatchRecommendations from "../components/MatchRecommendations";
+import background from "../assets/travel.jpg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,11 +19,8 @@ const Dashboard = () => {
       {/* BACKGROUND IMAGE */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://wallpaperaccess.com/full/89251.jpg')",
-        }}
       >
+        <img src={background} alt="Travel Background" className="w-full h-full object-cover" />
         {/* OVERLAY */}
         <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" />
       </div>
