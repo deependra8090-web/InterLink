@@ -25,35 +25,98 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* ================= NAVBAR ================= */}
+{/* ================= NAVBAR ================= */}
 
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10">
+<nav className="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-md shadow-md">
 
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+  <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-          {/* LOGO */}
+    {/* LOGO */}
+    <div className="flex items-center gap-3">
 
-          <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+        <span className="text-blue-600 font-bold text-lg">
+          🌍
+        </span>
+      </div>
 
-            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-lg">
-              <Plane
-                size={23}
-                className="text-blue-600"
-              />
-            </div>
+      <h1 className="text-xl font-bold text-white">
+        InterLink
+      </h1>
 
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                Inter<span className="text-blue-400">Link</span> 🌍
-              </h1>
+    </div>
 
-              <p className="text-xs text-gray-300">
-                AI Travel Buddy Finder
-              </p>
-            </div>
 
-          </div>
+    {/* NAVIGATION */}
+    <div className="hidden md:flex items-center gap-8">
 
+      <button
+        onClick={() => navigate("/explore")}
+        className="text-white hover:text-blue-300 transition"
+      >
+        Explore Trips
+      </button>
+
+      <button
+        onClick={() => navigate("/create-trip")}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full transition"
+      >
+        + Create Trip
+      </button>
+
+      <button
+        onClick={() =>
+          user
+            ? navigate("/ai-recommendations")
+            : navigate("/login")
+        }
+        className="text-white hover:text-purple-300 transition flex items-center gap-2"
+      >
+        ✨ AI Recommendations
+      </button>
+
+      <button
+        onClick={() => navigate("/about")}
+        className="text-white hover:text-blue-300 transition"
+      >
+        About
+      </button>
+
+      {user && (
+        <button
+          onClick={() => navigate("/profile")}
+          className="text-white hover:text-blue-300 transition"
+        >
+          Profile
+        </button>
+      )}
+
+    </div>
+
+
+    {/* LOGIN / LOGOUT */}
+
+    {user ? (
+      <button
+        onClick={() => navigate("/logout")}
+        className="text-red-400 hover:text-red-300 transition"
+      >
+        Logout
+      </button>
+    ) : (
+      <button
+        onClick={() => navigate("/login")}
+        className="text-white hover:text-blue-300 transition"
+      >
+        Login
+      </button>
+    )}
+
+  </div>
+
+</nav>
+
+      
 
           {/* NAVIGATION */}
 
